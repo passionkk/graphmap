@@ -218,6 +218,166 @@ private:
 // You'll need to define the member functions of your Digraph class
 // template here.
 
+template <typename VertexInfo, typename EdgeInfo>
+Digraph<VertexInfo, EdgeInfo>::Digraph()
+{
+    // The default constructor initializes a new, empty Digraph so that
+    // contains no vertices and no edges.
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+Digraph<VertexInfo, EdgeInfo>::Digraph(const Digraph& d)
+{
+    // The copy constructor initializes a new Digraph to be a deep copy
+    // of another one (i.e., any change to the copy will not affect the
+    // original).
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+Digraph<VertexInfo, EdgeInfo>::Digraph(Digraph&& d)
+{
+    // The move constructor initializes a new Digraph from an expiring one.
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+Digraph<VertexInfo, EdgeInfo>::~Digraph()
+{
+    // The destructor deallocates any memory associated with the Digraph.
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+Digraph<VertexInfo, EdgeInfo>& Digraph<VertexInfo, EdgeInfo>::operator=(const Digraph& d)
+{
+    // The assignment operator assigns the contents of the given Digraph
+    // into "this" Digraph, with "this" Digraph becoming a separate, deep
+    // copy of the contents of the given one (i.e., any change made to
+    // "this" Digraph afterward will not affect the other).
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+Digraph<VertexInfo, EdgeInfo>& Digraph<VertexInfo, EdgeInfo>::operator=(Digraph&& d)
+{
+    // The move assignment operator assigns the contents of an expiring
+    // Digraph into "this" Digraph.
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+std::vector<int> Digraph<VertexInfo, EdgeInfo>::vertices() const
+{
+    // vertices() returns a std::vector containing the vertex numbers of
+    // every vertex in this Digraph.
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+std::vector<std::pair<int, int>> Digraph<VertexInfo, EdgeInfo>::edges() const
+{
+    // edges() returns a std::vector of std::pairs, in which each pair
+    // contains the "from" and "to" vertex numbers of an edge in this
+    // Digraph.  All edges are included in the std::vector.
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+std::vector<std::pair<int, int>> Digraph<VertexInfo, EdgeInfo>::edges(int vertex) const
+{
+    // This overload of edges() returns a std::vector of std::pairs, in
+    // which each pair contains the "from" and "to" vertex numbers of an
+    // edge in this Digraph.  Only edges outgoing from the given vertex
+    // number are included in the std::vector.  If the given vertex does
+    // not exist, a DigraphException is thrown instead.
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+VertexInfo Digraph<VertexInfo, EdgeInfo>::vertexInfo(int vertex) const
+{
+    // vertexInfo() returns the VertexInfo object belonging to the vertex
+    // with the given vertex number.  If that vertex does not exist, a
+    // DigraphException is thrown instead.
+}
+
+
+template <typename VertexInfo, typename EdgeInfo>
+EdgeInfo Digraph<VertexInfo, EdgeInfo>::edgeInfo(int fromVertex, int toVertex) const
+{
+    // edgeInfo() returns the EdgeInfo object belonging to the edge
+    // with the given "from" and "to" vertex numbers.  If either of those
+    // vertices does not exist *or* if the edge does not exist, a
+    // DigraphException is thrown instead.
+}
+
+
+template <typename VertexInfo, typename EdgeInfo>
+void Digraph<VertexInfo, EdgeInfo>::addVertex(int vertex, const VertexInfo& vinfo)
+{
+    // addVertex() adds a vertex to the Digraph with the given vertex
+    // number and VertexInfo object.  If there is already a vertex in
+    // the graph with the given vertex number, a DigraphException is
+    // thrown instead.
+}
+
+
+template <typename VertexInfo, typename EdgeInfo>
+void Digraph<VertexInfo, EdgeInfo>::addEdge(int fromVertex, int toVertex, const EdgeInfo& einfo)
+{
+    // addEdge() adds an edge to the Digraph pointing from the given
+    // "from" vertex number to the given "to" vertex number, and
+    // associates with the given EdgeInfo object with it.  If one
+    // of the vertices does not exist *or* if the same edge is already
+    // present in the graph, a DigraphException is thrown instead.
+}
+
+
+template <typename VertexInfo, typename EdgeInfo>
+void Digraph<VertexInfo, EdgeInfo>::removeVertex(int vertex)
+{
+    // removeVertex() removes the vertex (and all of its incoming
+    // and outgoing edges) with the given vertex number from the
+    // Digraph.  If the vertex does not exist already, a DigraphException
+    // is thrown instead.
+}
+
+
+template <typename VertexInfo, typename EdgeInfo>
+void Digraph<VertexInfo, EdgeInfo>::removeEdge(int fromVertex, int toVertex)
+{
+    // removeEdge() removes the edge pointing from the given "from"
+    // vertex number to the given "to" vertex number from the Digraph.
+    // If either of these vertices does not exist *or* if the edge
+    // is not already present in the graph, a DigraphException is
+    // thrown instead.
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+int Digraph<VertexInfo, EdgeInfo>::vertexCount() const
+{
+    // vertexCount() returns the number of vertices in the graph.
+}
+
+
+template <typename VertexInfo, typename EdgeInfo>
+int Digraph<VertexInfo, EdgeInfo>::edgeCount() const
+{
+    // edgeCount() returns the total number of edges in the graph,
+    // counting edges outgoing from all vertices.
+}
+
+
+template <typename VertexInfo, typename EdgeInfo>
+int Digraph<VertexInfo, EdgeInfo>::edgeCount(int vertex) const
+{
+    // This overload of edgeCount() returns the number of edges in
+    // the graph that are outgoing from the given vertex number.
+    // If the given vertex does not exist, a DigraphException is
+    // thrown instead.
+}
+
+template <typename VertexInfo, typename EdgeInfo>
+bool Digraph<VertexInfo, EdgeInfo>::isStronglyConnected() const
+{
+    // isStronglyConnected() returns true if the Digraph is strongly
+    // connected (i.e., every vertex is reachable from every other),
+    // false otherwise.
+}
+
 
 
 #endif // DIGRAPH_HPP
