@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../core/Digraph.hpp
+functional
+-
+list
+-
+map
+-
+utility
+-
+vector
+-
+string
+-
+iterator
+-
+iostream
+-
+
+/home/ics46/projects/proj4/gtest/Digraph_SanityCheckTests.cpp
+gtest/gtest.h
+-
+Digraph.hpp
+/home/ics46/projects/proj4/gtest/Digraph.hpp
+
+/home/ics46/projects/proj4/gtest/gtestmain.cpp
+gtest/gtest.h
+-
+

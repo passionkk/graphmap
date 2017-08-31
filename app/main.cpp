@@ -20,13 +20,7 @@
 
 int main()
 {
-	InputReader lo = InputReader(std::cin);
-
-	RoadMapReader rlo;
-	RoadMap lomap = rlo.readRoadMap(lo);
-
-	TripReader tlo;
-	std::vector<Trip> tv = tlo.readTrips(lo);
+	
 
     return 0;
 }

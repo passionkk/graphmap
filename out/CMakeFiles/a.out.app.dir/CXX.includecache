@@ -17,6 +17,12 @@ utility
 -
 vector
 -
+string
+-
+iterator
+-
+iostream
+-
 
 /home/ics46/projects/proj4/app/InputReader.cpp
 InputReader.hpp

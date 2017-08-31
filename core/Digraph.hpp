@@ -25,6 +25,9 @@
 #include <map>
 #include <utility>
 #include <vector>
+#include <string>
+#include <iterator>
+#include <iostream>
 
 
 
@@ -207,8 +210,8 @@ private:
     // possibility is a std::map where the keys are vertex numbers
     // and the values are DigraphVertex<VertexInfo, EdgeInfo> objects.
     std::map<int, DigraphVertex<VertexInfo, EdgeInfo>> info;
-    int vertex_num;
-    int edge_num;
+    std::vector<int> vertex_num;
+    std::vector<std::pair<int, int>> edge_num;
 
     // You can also feel free to add any additional member functions
     // you'd like (public or private), so long as you don't remove or
@@ -224,7 +227,6 @@ private:
 
 template <typename VertexInfo, typename EdgeInfo>
 Digraph<VertexInfo, EdgeInfo>::Digraph()
-    : vertex_num{0}, edge_num{0}
 {
     
 }
@@ -273,34 +275,21 @@ Digraph<VertexInfo, EdgeInfo>& Digraph<VertexInfo, EdgeInfo>::operator=(Digraph&
 template <typename VertexInfo, typename EdgeInfo>
 std::vector<int> Digraph<VertexInfo, EdgeInfo>::vertices() const
 {
-    std::vector<int> v;
-
-    for (auto lo : info)
-        v.push_back(lo->first);
-
-    return v;
+    return vertex_num;
 
 }
 
 template <typename VertexInfo, typename EdgeInfo>
 std::vector<std::pair<int, int>> Digraph<VertexInfo, EdgeInfo>::edges() const
 {
-    std::vector<std::pair<int, int>> e;
-
-    for (auto i:info)
-    {
-        for (auto j:i->second.edges)
-            e.push_back(std::make_pair(j->fromVertex, j->toVertex));
-    }
-
-    return e;
+    return edge_num;
 
 }
 
 template <typename VertexInfo, typename EdgeInfo>
 std::vector<std::pair<int, int>> Digraph<VertexInfo, EdgeInfo>::edges(int vertex) const
 {
-    std::vector<std::pair<int, int>> e;
+	std::vector<std::pair<int, int>> e;
 
     if (info.find(vertex) != info.end())
     {
@@ -310,22 +299,24 @@ std::vector<std::pair<int, int>> Digraph<VertexInfo, EdgeInfo>::edges(int vertex
                 e.push_back(std::make_pair(j->fromVertex, j->toVertex));
         }
     }
+    return e;
+
 }
 
 template <typename VertexInfo, typename EdgeInfo>
 VertexInfo Digraph<VertexInfo, EdgeInfo>::vertexInfo(int vertex) const
 {
-    return info[vertex].vinfo;
+    return info.at(vertex).vinfo;
 }
 
 
 template <typename VertexInfo, typename EdgeInfo>
 EdgeInfo Digraph<VertexInfo, EdgeInfo>::edgeInfo(int fromVertex, int toVertex) const
 {
-    for (auto i:info[fromVertex].edges)
+    for (auto i:info.at(fromVertex).edges)
     {
-        if (i->toVertex == toVertex)
-            return i->einfo;
+        if (i.fromVertex == fromVertex && i.toVertex == toVertex)
+            return i.einfo;
     }
 }
 
@@ -333,8 +324,9 @@ EdgeInfo Digraph<VertexInfo, EdgeInfo>::edgeInfo(int fromVertex, int toVertex) c
 template <typename VertexInfo, typename EdgeInfo>
 void Digraph<VertexInfo, EdgeInfo>::addVertex(int vertex, const VertexInfo& vinfo)
 {
-    info[vertex] = DigraphVertex<VertexInfo, EdgeInfo>{vinfo};
-    ++vertex_num;
+    DigraphVertex<VertexInfo, EdgeInfo> temp{vinfo};
+    info[vertex] = temp;
+    vertex_num.push_back(vertex);
 }
 
 
@@ -346,9 +338,10 @@ void Digraph<VertexInfo, EdgeInfo>::addEdge(int fromVertex, int toVertex, const 
     // associates with the given EdgeInfo object with it.  If one
     // of the vertices does not exist *or* if the same edge is already
     // present in the graph, a DigraphException is thrown instead.
-    DigraphEdge<EdgeInfo> newedge{fromVertex, toVertex, einfo};
-    info[fromVertex].edges.push_back(newedge);
-    ++edge_num;
+    DigraphEdge<EdgeInfo> temp{fromVertex, toVertex, einfo};
+    info[fromVertex].edges.push_back(temp);
+    edge_num.push_back(std::pair<int, int>(fromVertex, toVertex));
+
 }
 
 
@@ -359,70 +352,67 @@ void Digraph<VertexInfo, EdgeInfo>::removeVertex(int vertex)
     // and outgoing edges) with the given vertex number from the
     // Digraph.  If the vertex does not exist already, a DigraphException
     // is thrown instead.
-
     info.erase(vertex);
-    --vertex_num;
+    for (std::vector<int>::iterator i=vertex_num.begin(); i!=vertex_num.end(); ++i)
+    {
+    	if (*i == vertex)
+    	{
+    		vertex_num.erase(i);
+    		return;
+    	}
+    }
+
+    
 }
 
 
 template <typename VertexInfo, typename EdgeInfo>
 void Digraph<VertexInfo, EdgeInfo>::removeEdge(int fromVertex, int toVertex)
 {
-    // removeEdge() removes the edge pointing from the given "from"
-    // vertex number to the given "to" vertex number from the Digraph.
-    // If either of these vertices does not exist *or* if the edge
-    // is not already present in the graph, a DigraphException is
-    // thrown instead.
-    for (auto i:info[fromVertex].edges)
+    for (std::vector<std::pair<int, int>>::iterator it=edge_num.begin(); it!=edge_num.end(); ++it)
     {
-        if (i->toVertex == toVertex)
-        {
-            info[fromVertex].edges.erase(i);
-            --edge_num;
-            return;
-        }
+    	std::cout << it->second << std::endl;
+    	if (it->second == toVertex)
+    	{
+    		for (auto& i : info[fromVertex].edges)
+		    {
+		    	if(i.toVertex == toVertex)
+		    	{
+		    		i.toVertex = info.erase(toVertex);
+		    	}
+		    }
+	   		edge_num.erase(it);
+    		return;
+    	}
     }
+
+    
 }
 
 template <typename VertexInfo, typename EdgeInfo>
 int Digraph<VertexInfo, EdgeInfo>::vertexCount() const
 {
-    return vertex_num;
+    return vertex_num.size();
 }
 
 
 template <typename VertexInfo, typename EdgeInfo>
 int Digraph<VertexInfo, EdgeInfo>::edgeCount() const
 {
-    return edge_num;
+    return edge_num.size();
 }
 
 
 template <typename VertexInfo, typename EdgeInfo>
 int Digraph<VertexInfo, EdgeInfo>::edgeCount(int vertex) const
 {
-    return info[vertex].edges.size();
+    return info.at(vertex).edges.size();
 }
 
 template <typename VertexInfo, typename EdgeInfo>
 bool Digraph<VertexInfo, EdgeInfo>::isStronglyConnected() const
 {
-    std::map<int, bool> map;
-
-    for (auto i:info)
-        map[i->first] = false;
-    for (auto i:info)
-    {
-        visit(i->first, map);
-        for(auto j:map)
-        {
-            if (map[j->first] == false)
-                return false;
-            map[j->first] = false;
-        }
-    }
-
-    return true;
+	//cried, I will do this later   
 }
 
 template <typename VertexInfo, typename EdgeInfo>
