@@ -28,7 +28,7 @@
 #include <string>
 #include <iterator>
 #include <iostream>
-
+#include <queue>
 
 
 // DigraphExceptions are thrown from some of the member functions in the
@@ -217,7 +217,7 @@ private:
     // you'd like (public or private), so long as you don't remove or
     // change the signatures of the ones that already exist.
 
-    void visit(int vertex, std::map<int, bool>& map);
+    void DFTr(int vertex, std::map<int, bool>& mmp) const;
 };
 
 
@@ -240,6 +240,7 @@ Digraph<VertexInfo, EdgeInfo>::Digraph(const Digraph& d)
 
 template <typename VertexInfo, typename EdgeInfo>
 Digraph<VertexInfo, EdgeInfo>::Digraph(Digraph&& d)
+	: vertex_num{d.vertex_num}, edge_num{d.edge_num}, info{d.info}
 {
     
 }
@@ -412,21 +413,80 @@ int Digraph<VertexInfo, EdgeInfo>::edgeCount(int vertex) const
 template <typename VertexInfo, typename EdgeInfo>
 bool Digraph<VertexInfo, EdgeInfo>::isStronglyConnected() const
 {
-	//cried, I will do this later   
+	std::map<int, bool> mmp;
+
+	for (auto i:info)
+	{
+		mmp[i.first] = false;
+
+	}
+	for (auto v:info)
+	{
+		DFTr(v.first, mmp);
+		for (auto lo:mmp)
+		{
+			if (mmp[lo.first] == false)
+				return false;
+			mmp[lo.first] = false;
+
+		}
+	}
+
+
+	return true;
+
+
+
 }
 
 template <typename VertexInfo, typename EdgeInfo>
-void Digraph<VertexInfo, EdgeInfo>::visit(int vertex, std::map<int, bool>& map)
+void Digraph<VertexInfo, EdgeInfo>::DFTr(int vertex, std::map<int, bool>& mmp) const
 {
-    map[vertex] = true;
-    for (auto i:info)
-    {
-        if (map[vertex] == false)
-            visit(i->toVertex, map);
-    }
+	mmp[vertex] = true;
+	for (auto e:info.at(vertex).edges)
+	{
+		if (mmp[e.toVertex] == false)
+			DFTr(e.toVertex, mmp);
+	}
 }
 
+template <typename VertexInfo, typename EdgeInfo>
+std::map<int, int> Digraph<VertexInfo, EdgeInfo>::findShortestPaths(
+	int startVertex, std::function<double(const EdgeInfo&)> edgeWeightFunc) const
+{
+	std::map<int, bool> kv;
+	std::map<int, double> dv;
+	std::map<int, int> pv;
 
+	std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>> pq;
+
+
+	for (auto i:vertex_num)
+	{
+		kv.insert(std::make_pair(i, false));
+		dv.insert(std::make_pair(i, 9999999));
+		pv.insert(std::make_pair(i, nullptr));
+	}
+
+	pq.push(std::pair<int, double> (startVertex, 0));
+	while(!pq.empty())
+	{
+		std::pair<int, int> p = pq.top();
+		pq.pop();
+		for (auto e:info.at(p.second).edges)
+		{
+				if (dv[e->toVertex] > dv[p.second] + edgeWeightFunc(e->einfo))
+				{
+					dv[e->toVertex] = dv[p.second] + edgeWeightFunc(e->einfo);
+					pv[e->toVertex] = p.second;
+					pq.push(std::make_pair(dv[e->toVertex], e->toVertex));
+				}
+		}
+	}
+	return pv;
+
+
+}
 
 #endif // DIGRAPH_HPP
 

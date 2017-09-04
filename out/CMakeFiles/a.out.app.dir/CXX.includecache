@@ -23,6 +23,8 @@ iterator
 -
 iostream
 -
+queue
+-
 
 /home/ics46/projects/proj4/app/InputReader.cpp
 InputReader.hpp
