@@ -50,14 +50,12 @@ void print(double sum)
 
 int main() 
 {
-	std::function<double(RoadSegment)> Miles = 
-	[](const RoadSegment& info)
+	std::function<double(RoadSegment)> Miles = [](const RoadSegment& info)
 	{
 		return info.miles;
 	};
 
-	std::function<double(RoadSegment)> Times = 
-	[](const RoadSegment& info)
+	std::function<double(RoadSegment)> Times = [](const RoadSegment& info)
 	{
 		return info.miles/info.milesPerHour*3600;
 	};
@@ -80,70 +78,69 @@ int main()
 		std::vector<int> dir;
 		dir.push_back(tp[i].endVertex);
 		int curr = tp[i].endVertex;
-		if (tp[i].metric == TripMetric::Distance)
+		if (tp[i].metric == TripMetric::Time)
 		{
-			std::cout << "Shortest distance from " << rm.vertexInfo(tp[i].startVertex) << " to " << rm.vertexInfo(tp[i].endVertex) << std::endl;
-			std::map<int, int> shortp = rm.findShortestPaths(tp[i].startVertex, Miles);
-			double sumMiles = 0.00;
-			while (curr != tp[i].startVertex)
-			{
-				dir.push_back(shortp.at(curr));
-				curr = shortp.at(curr);
-			}
-
-			std::cout << "  Begin at " << rm.vertexInfo(dir.back()) << std::endl;
-			int fromVertex = dir.back();
-			dir.pop_back();
-
-			while (dir.size() > 0)
-			{   
-				int toVertex = dir.back();
-				dir.pop_back();
-
-				std::cout << "  Continue to " << rm.vertexInfo(toVertex) << " (" << rm.edgeInfo(fromVertex, toVertex).miles << " miles)" << std::endl;
-
-				sumMiles += rm.edgeInfo(fromVertex, toVertex).miles;
-				fromVertex = toVertex;
-			}
-
-			std::cout << "Total distance: " << std::fixed << std::setprecision(1) << sumMiles << " miles" << std::endl;
-		}
-		else
-		{
-			std::cout << "Shortest driving time from " << rm.vertexInfo(tp[i].startVertex) << " to " << rm.vertexInfo(tp[i].endVertex) << std::endl;
+			std::cout << "Shortest driving time from " << std::fixed << std::setprecision(1) << rm.vertexInfo(tp[i].startVertex) << " to " << rm.vertexInfo(tp[i].endVertex) << std::endl;
 
 			std::map<int, int> shortp = rm.findShortestPaths(tp[i].startVertex, Times);
 			double sumTime = 0.00;
-			while (curr != tp[i].startVertex)
+			while (1)
 			{
 				dir.push_back(shortp.at(curr));
 				curr = shortp.at(curr);
+				if (curr == tp[i].startVertex)
+					break;
 			}
 			
-			std::cout << "  Begin at " << rm.vertexInfo(dir.back()) << std::endl;
 			int fromVertex = dir.back();
+			std::cout << "  Begin at " << rm.vertexInfo(fromVertex) << std::endl;
 			dir.pop_back();
 
-			while (dir.size() > 0)
+			while (dir.size())
 			{
 				int toVertex = dir.back();
-				dir.pop_back();
 				double time = Times(rm.edgeInfo(fromVertex, toVertex));
-
-				std::cout << "  Continue to " << rm.vertexInfo(toVertex) << " (" << rm.edgeInfo(fromVertex, toVertex).miles << " miles @ " << rm.edgeInfo(fromVertex, toVertex).milesPerHour << "mph = ";
+				std::cout << "  Continue to " << std::fixed << std::setprecision(1) << rm.vertexInfo(toVertex) << " (" << rm.edgeInfo(fromVertex, toVertex).miles << " miles @ " << std::fixed << std::setprecision(1) << rm.edgeInfo(fromVertex, toVertex).milesPerHour << "mph = ";
 				print(time);
 				std::cout << ")" << std::endl;
 				sumTime += time;
 				fromVertex = toVertex;
+				dir.pop_back();
 			}
-
-
 			std::cout << "Total time: ";
 			print(sumTime);
 			std::cout << std::endl;
-
 		}
-		std::cout << std::endl;
+		else
+		{
+
+
+			std::cout << "Shortest distance from " << rm.vertexInfo(tp[i].startVertex) << " to " << rm.vertexInfo(tp[i].endVertex) << std::endl;
+			std::map<int, int> shortp = rm.findShortestPaths(tp[i].startVertex, Miles);
+			double sumMiles = 0.00;
+			while (1)
+			{
+				dir.push_back(shortp.at(curr));
+				curr = shortp.at(curr);
+				if (curr == tp[i].startVertex)
+					break;
+			}
+
+			int fromVertex = dir.back();
+			std::cout << "  Begin at " << rm.vertexInfo(fromVertex) << std::endl;
+			dir.pop_back();
+
+			while (dir.size())
+			{   
+				int toVertex = dir.back();
+				std::cout << "  Continue to " << rm.vertexInfo(toVertex) << " (" << std::fixed << std::setprecision(1) << rm.edgeInfo(fromVertex, toVertex).miles << " miles)" << std::endl;
+				sumMiles += rm.edgeInfo(fromVertex, toVertex).miles;
+				fromVertex = toVertex;
+				dir.pop_back();
+			}
+			std::cout << "Total distance: " << std::fixed << std::setprecision(1) << sumMiles << " miles" << std::endl;
+		}
+		std::cout << std::endl; //next trip
 	}
 
 	return 0;

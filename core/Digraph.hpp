@@ -339,6 +339,10 @@ EdgeInfo Digraph<VertexInfo, EdgeInfo>::edgeInfo(int fromVertex, int toVertex) c
 template <typename VertexInfo, typename EdgeInfo>
 void Digraph<VertexInfo, EdgeInfo>::addVertex(int vertex, const VertexInfo& vinfo)
 {
+	if (info.find(vertex) != info.end())
+	{
+		throw DigraphException{"Vertex already exist"};
+	}
     DigraphVertex<VertexInfo, EdgeInfo> temp{vinfo};
     info[vertex] = temp;
     vertex_num.push_back(vertex);
@@ -348,11 +352,11 @@ void Digraph<VertexInfo, EdgeInfo>::addVertex(int vertex, const VertexInfo& vinf
 template <typename VertexInfo, typename EdgeInfo>
 void Digraph<VertexInfo, EdgeInfo>::addEdge(int fromVertex, int toVertex, const EdgeInfo& einfo)
 {
-    // addEdge() adds an edge to the Digraph pointing from the given
-    // "from" vertex number to the given "to" vertex number, and
-    // associates with the given EdgeInfo object with it.  If one
-    // of the vertices does not exist *or* if the same edge is already
-    // present in the graph, a DigraphException is thrown instead.
+	if (info.find(fromVertex) == info.end() || info.find(toVertex) == info.end())
+	{
+		throw DigraphException{"Vertex does not exist"};
+	}
+
     DigraphEdge<EdgeInfo> temp{fromVertex, toVertex, einfo};
     info[fromVertex].edges.push_back(temp);
     edge_num.push_back(std::pair<int, int>(fromVertex, toVertex));
@@ -363,10 +367,10 @@ void Digraph<VertexInfo, EdgeInfo>::addEdge(int fromVertex, int toVertex, const 
 template <typename VertexInfo, typename EdgeInfo>
 void Digraph<VertexInfo, EdgeInfo>::removeVertex(int vertex)
 {
-    // removeVertex() removes the vertex (and all of its incoming
-    // and outgoing edges) with the given vertex number from the
-    // Digraph.  If the vertex does not exist already, a DigraphException
-    // is thrown instead.
+    if (info.find(vertex) == info.end())
+	{
+		throw DigraphException{"Vertex not exist"};
+	}
     info.erase(vertex);
     for (std::vector<int>::iterator i=vertex_num.begin(); i!=vertex_num.end(); ++i)
     {
@@ -384,6 +388,10 @@ void Digraph<VertexInfo, EdgeInfo>::removeVertex(int vertex)
 template <typename VertexInfo, typename EdgeInfo>
 void Digraph<VertexInfo, EdgeInfo>::removeEdge(int fromVertex, int toVertex)
 {
+	if (info.find(fromVertex) == info.end() || info.find(toVertex) == info.end())
+	{
+		throw DigraphException{"Vertex does not exist"};
+	}
     for (std::vector<std::pair<int, int>>::iterator it=edge_num.begin(); it!=edge_num.end(); ++it)
     {
     	std::cout << it->second << std::endl;
@@ -421,6 +429,10 @@ int Digraph<VertexInfo, EdgeInfo>::edgeCount() const
 template <typename VertexInfo, typename EdgeInfo>
 int Digraph<VertexInfo, EdgeInfo>::edgeCount(int vertex) const
 {
+	if (info.find(vertex) == info.end())
+	{
+		throw DigraphException{"Vertex not exist"};
+	}
     return info.at(vertex).edges.size();
 }
 
@@ -501,7 +513,6 @@ std::map<int, int> Digraph<VertexInfo, EdgeInfo>::findShortestPaths(
 		}
 	}
 	return pv;
-
 
 }
 
