@@ -233,16 +233,18 @@ Digraph<VertexInfo, EdgeInfo>::Digraph()
 
 template <typename VertexInfo, typename EdgeInfo>
 Digraph<VertexInfo, EdgeInfo>::Digraph(const Digraph& d)
-    : vertex_num{d.vertex_num}, edge_num{d.edge_num}, info{d.info}
 {
-    
+    vertex_num = d.vertex_num;
+    edge_num = d.edge_num;
+    info = d.info;
 }
 
 template <typename VertexInfo, typename EdgeInfo>
 Digraph<VertexInfo, EdgeInfo>::Digraph(Digraph&& d)
-	: vertex_num{d.vertex_num}, edge_num{d.edge_num}, info{d.info}
 {
-    
+    vertex_num = d.vertex_num;
+    edge_num = d.edge_num;
+    info = d.info;
 }
 
 template <typename VertexInfo, typename EdgeInfo>
@@ -294,12 +296,14 @@ std::vector<std::pair<int, int>> Digraph<VertexInfo, EdgeInfo>::edges(int vertex
 
     if (info.find(vertex) != info.end())
     {
-        for (auto i:info.find(vertex))
-        {
-            for (auto j:i->second.edges)
-                e.push_back(std::make_pair(j->fromVertex, j->toVertex));
-        }
+        auto i = info.find(vertex);
+        
+        for (auto j:i->second.edges)
+            e.push_back(std::make_pair(j.fromVertex, j.toVertex));
+        
     }
+    else
+    	throw DigraphException{"Edges does not exist"};
     return e;
 
 }
@@ -307,18 +311,28 @@ std::vector<std::pair<int, int>> Digraph<VertexInfo, EdgeInfo>::edges(int vertex
 template <typename VertexInfo, typename EdgeInfo>
 VertexInfo Digraph<VertexInfo, EdgeInfo>::vertexInfo(int vertex) const
 {
-    return info.at(vertex).vinfo;
+	if (info.find(vertex) == info.end())
+		throw DigraphException{"Vertex does not exist"};
+	else
+    	return info.at(vertex).vinfo;
 }
 
 
 template <typename VertexInfo, typename EdgeInfo>
 EdgeInfo Digraph<VertexInfo, EdgeInfo>::edgeInfo(int fromVertex, int toVertex) const
 {
-    for (auto i:info.at(fromVertex).edges)
-    {
-        if (i.fromVertex == fromVertex && i.toVertex == toVertex)
-            return i.einfo;
-    }
+	if (info.find(fromVertex) == info.end() || info.find(toVertex) == info.end())
+	{
+		throw DigraphException{"Vertex does not exist"};
+	}
+	else
+	{
+	    for (auto i:info.at(fromVertex).edges)
+	    {
+	        if (i.fromVertex == fromVertex && i.toVertex == toVertex)
+	            return i.einfo;
+	    }
+	}
 }
 
 
@@ -458,28 +472,31 @@ std::map<int, int> Digraph<VertexInfo, EdgeInfo>::findShortestPaths(
 	std::map<int, double> dv;
 	std::map<int, int> pv;
 
-	std::priority_queue<std::pair<int, double>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>> pq;
-
+	std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int, int>>> pq;
 
 	for (auto i:vertex_num)
 	{
 		kv.insert(std::make_pair(i, false));
-		dv.insert(std::make_pair(i, 9999999));
-		pv.insert(std::make_pair(i, nullptr));
+		pv[i] = i;
+		if (i == startVertex)
+			dv[i] = 0;
+		else
+			dv[i] = 99999999;
 	}
 
-	pq.push(std::pair<int, double> (startVertex, 0));
+	pq.push(std::pair<int, int>(dv[startVertex], startVertex));
 	while(!pq.empty())
-	{
+	{		
 		std::pair<int, int> p = pq.top();
 		pq.pop();
 		for (auto e:info.at(p.second).edges)
 		{
-				if (dv[e->toVertex] > dv[p.second] + edgeWeightFunc(e->einfo))
+
+				if (dv[e.toVertex] > dv[p.second] + edgeWeightFunc(e.einfo))
 				{
-					dv[e->toVertex] = dv[p.second] + edgeWeightFunc(e->einfo);
-					pv[e->toVertex] = p.second;
-					pq.push(std::make_pair(dv[e->toVertex], e->toVertex));
+					dv[e.toVertex] = dv[p.second] + edgeWeightFunc(e.einfo);
+					pv[e.toVertex] = p.second;
+					pq.push(std::make_pair(dv[e.toVertex], e.toVertex));
 				}
 		}
 	}
